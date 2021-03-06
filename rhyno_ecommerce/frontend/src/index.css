@@ -1,0 +1,10 @@
+body {
+  font-family: "Permanent Marker", cursive !important;
+}
+main {
+  min-height: 80vh;
+}
+
+.rating span {
+  margin: 0.1rem;
+}
