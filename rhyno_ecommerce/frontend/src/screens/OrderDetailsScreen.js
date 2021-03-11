@@ -1,19 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Row, Button, Col, ListGroup, Image, Card } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
+import { PayPalButton } from "react-paypal-button-v2";
 import { Link } from "react-router-dom";
 import Message from "../components/Message";
-import { getOrderDetails } from "../actions/orderActions";
+import { getOrderDetails, payOrder } from "../actions/orderActions";
 
 import Loader from "../components/Loader";
+import { ORDER_PAY_RESET } from "../constants/orderConstants";
 
 const OrderDetailsScreen = ({ match }) => {
   const orderId = match.params.id;
   const dispatch = useDispatch();
 
+  const [sdkReady, setSdkReady] = useState(false);
+
+  const orderPay = useSelector((state) => state.orderPay);
+  const { loading: loadingPay, success: successPay } = orderPay;
+
   const orderDetails = useSelector((state) => state.orderDetails);
   const { order, error, loading } = orderDetails;
-  console.log("loading", loading);
 
   if (!loading && !error) {
     order.itemsPrice = Number(
@@ -21,11 +27,36 @@ const OrderDetailsScreen = ({ match }) => {
     ).toFixed(2);
   }
 
+  const addPayPalScript = () => {
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    const client_id =
+      "AVoS6TyxFr-39V25fMPM9vwbZkakGE94MXwgEYXhe0ACEBE1hTL2H5djiqDsv3ia8y_2__qDRHV4EWdV";
+    script.src = `https://www.paypal.com/sdk/js?client-id=${client_id}`;
+    script.async = true;
+    script.onload = () => {
+      setSdkReady(true);
+    };
+    document.body.appendChild(script);
+  };
+
   useEffect(() => {
-    if (!order || order._id !== Number(orderId)) {
+    if (!order || successPay || order._id !== Number(orderId)) {
+      dispatch({ type: ORDER_PAY_RESET });
       dispatch(getOrderDetails(orderId));
+    } else if (!order.isPaid) {
+      if (!window.paypal) {
+        addPayPalScript();
+      } else {
+        setSdkReady(true);
+      }
     }
-  }, [dispatch, order, orderId]);
+  }, [dispatch, order, orderId, successPay]);
+
+  const succcessPaymentHandler = (paymentResult) => {
+    console.log("paymentRes:", paymentResult);
+    dispatch(payOrder(orderId, paymentResult));
+  };
 
   return loading ? (
     <Loader />
@@ -121,25 +152,39 @@ const OrderDetailsScreen = ({ match }) => {
                   <Col>${order.itemsPrice}</Col>
                 </Row>
               </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Shipping:</Col>
+                  <Col>${order.shippingPrice}</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Tax:</Col>
+                  <Col>${order.taxPrice}</Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
+                  <Col>Total:</Col>
+                  <Col>${order.totalPrice}</Col>
+                </Row>
+              </ListGroup.Item>
+              {!order.isPaid && (
+                <ListGroup.Item>
+                  {loadingPay && <Loader />}
+
+                  {!sdkReady ? (
+                    <Loader />
+                  ) : (
+                    <PayPalButton
+                      amount={order.totalPrice}
+                      onSuccess={succcessPaymentHandler}
+                    />
+                  )}
+                </ListGroup.Item>
+              )}
             </ListGroup>
-            <ListGroup.Item>
-              <Row>
-                <Col>Shipping:</Col>
-                <Col>${order.shippingPrice}</Col>
-              </Row>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              <Row>
-                <Col>Tax:</Col>
-                <Col>${order.taxPrice}</Col>
-              </Row>
-            </ListGroup.Item>
-            <ListGroup.Item>
-              <Row>
-                <Col>Total:</Col>
-                <Col>${order.totalPrice}</Col>
-              </Row>
-            </ListGroup.Item>
           </Card>
         </Col>
       </Row>
