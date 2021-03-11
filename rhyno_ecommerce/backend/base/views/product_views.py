@@ -21,3 +21,27 @@ def getProduct(request, pk):
     product = Product.objects.get(_id=pk)
     serializer = ProductSerializer(product, many=False)
     return Response(serializer.data)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateProduct(request, pk):
+    product = Product.objects.get(id=pk)
+
+    data = request.data
+
+    product.name = data['name']
+    product.price = data['price']
+    product.category = data['category']
+    product.brand = data['brand']
+
+    product.save()
+    serializer = ProductSerializer(product, many=False)
+
+    return Response(serializer.data)
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser])
+def deleteProduct(request, pk):
+    productForDeletion = Product.objects.get(_id=pk)
+    productForDeletion.delete()
+    return Response('Product was deleted')
