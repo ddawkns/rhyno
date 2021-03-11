@@ -12,4 +12,6 @@ urlpatterns= [
 
     path('', views.getUsers, name="users"),
 
+    path('delete/<str:pk>/', views.deleteUser, name='user-delete')
+
 ]   
