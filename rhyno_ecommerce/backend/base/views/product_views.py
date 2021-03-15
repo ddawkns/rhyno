@@ -22,17 +22,34 @@ def getProduct(request, pk):
     serializer = ProductSerializer(product, many=False)
     return Response(serializer.data)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createProduct(request):
+    user = request.user
+    product = Product.objects.create(
+        user=user, 
+        name='Name', 
+        price=0, 
+        brand='Brand', 
+        countInStock=0, 
+        category='Category', 
+        description='')
+    serializer = ProductSerializer(product, many=False)
+    return Response(serializer.data)
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updateProduct(request, pk):
-    product = Product.objects.get(id=pk)
-
     data = request.data
+    product = Product.objects.get(_id=pk)
 
     product.name = data['name']
     product.price = data['price']
-    product.category = data['category']
     product.brand = data['brand']
+    product.countInStock = data['countInStock']
+    product.category = data['category']
+    product.description = data['description']
+
 
     product.save()
     serializer = ProductSerializer(product, many=False)

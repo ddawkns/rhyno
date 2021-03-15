@@ -7,7 +7,8 @@ import Loader from "../components/Loader";
 import Message from "../components/Message";
 import FormContainer from "../components/FormContainer";
 
-import { listProductDetails } from "../actions/productActions";
+import { listProductDetails, updateProduct } from "../actions/productActions";
+import { PRODUCT_UPDATE_RESET } from "../constants/productConstants";
 
 const ProductEditScreen = ({ match, history }) => {
   const productId = match.params.id;
@@ -25,8 +26,18 @@ const ProductEditScreen = ({ match, history }) => {
   const productDetails = useSelector((state) => state.productDetails);
   const { error, loading, product } = productDetails;
 
+  const productUpdate = useSelector((state) => state.productUpdate);
+  const {
+    error: errorUpdate,
+    loading: loadingUpdate,
+    success: successUpdate,
+  } = productUpdate;
+
   useEffect(() => {
-    if (!product.name || product._id !== Number(productId)) {
+    if (successUpdate) {
+      dispatch({ type: PRODUCT_UPDATE_RESET });
+      history.push("/admin/productlist");
+    } else if (!product.name || product._id !== Number(productId)) {
       dispatch(listProductDetails(productId));
     } else {
       setName(product.name);
@@ -37,17 +48,31 @@ const ProductEditScreen = ({ match, history }) => {
       setCountInStock(product.countInStock);
       setDescription(product.description);
     }
-  }, [product, productId, dispatch, history]);
+  }, [product, productId, dispatch, history, successUpdate]);
 
   const submitHandler = (e) => {
     e.preventDefault();
     // Update product
+    dispatch(
+      updateProduct({
+        _id: productId,
+        name,
+        price,
+        image,
+        brand,
+        category,
+        countInStock,
+        description,
+      })
+    );
   };
   return (
     <div>
       <Link to="/admin/productlist">Go Back</Link>
       <FormContainer>
         <h1>Edit Product</h1>
+        {loadingUpdate && <Loader />}
+        {errorUpdate && <Message variant="dannger">{errorUpdate}</Message>}
         {loading ? (
           <Loader />
         ) : error ? (
