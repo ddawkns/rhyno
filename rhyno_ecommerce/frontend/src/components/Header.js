@@ -6,6 +6,8 @@ import { LinkContainer } from "react-router-bootstrap";
 import { userLoginReducer } from "../reducers/userReducers";
 import { logout } from "../actions/userActions";
 
+import SearchBox from "./SearchBox";
+
 function Header() {
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
@@ -22,6 +24,7 @@ function Header() {
           <LinkContainer to="/">
             <Navbar.Brand>Rhyno</Navbar.Brand>
           </LinkContainer>
+          <SearchBox />
           <Nav className="mr-auto">
             <LinkContainer to="/cart">
               <Nav.Link>
