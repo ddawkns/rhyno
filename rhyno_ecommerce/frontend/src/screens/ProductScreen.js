@@ -48,6 +48,8 @@ const ProductScreen = ({ match, history }) => {
       setRating(0);
       setComment("");
       dispatch({ type: PRODUCT_CREATE_REVIEW_RESET });
+    } else if (errorProductReview) {
+      dispatch({ type: PRODUCT_CREATE_REVIEW_RESET });
     }
     dispatch(listProductDetails(match.params.id));
   }, [dispatch, match, successProductReview]);
