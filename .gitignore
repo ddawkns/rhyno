@@ -1,0 +1,6 @@
+rhyno_ecommerce/backend/venv/
+rhyno_ecommerce/backend/backend/__pycache__/
+rhyno_ecommerce/backend/base/__pycache__/
+rhyno_ecommerce/backend/base/migrations/
+rhyno_ecommerce/frontend/node_modules/.cache/
+rhyno_ecommerce/frontend/node_modules/.cache/.eslintcache
