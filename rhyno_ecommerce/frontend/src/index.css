@@ -1,5 +1,14 @@
 body {
   font-family: "Permanent Marker", cursive !important;
+  background-image: url("./RHYNOBackground.jpg");
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: repeat-x;
+  background-color: #000000;
 }
 main {
   min-height: 80vh;
