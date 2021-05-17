@@ -25,7 +25,7 @@ SECRET_KEY = 'h^g37tm%f4!yiut^nn)&t!3dc*jc_-o&)%j4+jc(bre#i6*vna'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'rhyno-ecommerce.herokuapp.com']
 
 
 # Application definition
@@ -80,7 +80,7 @@ SIMPLE_JWT = {
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -120,9 +120,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rhyno',
+        'NAME': os.environ.get('RHYNO_DB_NAME'),
         'USER': 'postgres',
-        'PASSWORD':'ddd.123.',
+        'PASSWORD': os.environ.get('RHYNO_DB_PW'),
         'HOST': 'hotelchatroom.com',
         'PORT': '5432'
     }
@@ -173,7 +173,9 @@ STATICFILES_DIRS = [
     BASE_DIR / 'frontend/build/static'
 ]
 
-MEDIA_ROOT = 'static/images'
+MEDIA_ROOT = BASE_DIR / 'static/images'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -185,3 +187,6 @@ AWS_ACCESS_KEY_ID = os.environ.get('hotel_s3_access')
 AWS_SECRET_ACCESS_KEY = os.environ.get('hotel_s3_secret')
 
 AWS_STORAGE_BUCKET_NAME = 'rhyno-ecommerce'
+
+if os.getcwd() == '/app':
+    DEBUG = False
